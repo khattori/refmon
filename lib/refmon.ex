@@ -7,7 +7,6 @@ defmodule Refmon do
       require Refmon
       import Refmon, only: :macros
 
-      @compile {:autoload, false}
       Module.register_attribute(__MODULE__, :registered_access_modes,
         accumulate: true,
         persist: true
