@@ -10,11 +10,12 @@ defmodule Refmon.Application do
   @impl true
   def start(_type, _args) do
     adapter = Refmon.get_env(:adapter, @default_adapter)
+    otp_app = Refmon.get_env(:otp_app, Refmon.application())
 
     children = [
       # Starts a worker by calling: Refmon.Worker.start_link(arg)
       # {Refmon.Worker, arg}
-      {Refmon.Server, adapter: adapter},
+      {Refmon.Server, adapter: adapter, otp_app: otp_app},
       {ConCache, name: Refmon.Cache, ttl_check_interval: false}
     ]
 

@@ -7,7 +7,8 @@ defmodule Refmon.Server do
   end
 
   def init(opts) do
-    apps = [Refmon.application() | Refmon.application() |> Application.spec(:applications)]
+    otp_app = Keyword.get(opts, :otp_app)
+    apps = [otp_app | otp_app |> Application.spec(:applications)]
 
     access_modes =
       Enum.reduce(apps, MapSet.new(), fn app, acc ->
