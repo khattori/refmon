@@ -38,9 +38,11 @@ defmodule Refmon.Server do
     GenServer.call(__MODULE__, :access_modes)
   end
 
+  # subjがnilの場合、システムアクセスのため常に許可し、監査もパスする
+  def validate(nil, _obj, _acc), do: :allow
   def validate(subj, obj, acc) do
-    # subject が nil もしくは 許可リストに含まれていれば ok
-    if is_nil(subj) || acc in permissions(subj, obj) do
+    # 許可リストに含まれていれば ok
+    if acc in permissions(subj, obj) do
       :allow
     else
       :deny
