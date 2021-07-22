@@ -34,6 +34,10 @@ defmodule Refmon.Server do
     |> MapSet.new()
   end
 
+  def adapter() do
+    GenServer.call(__MODULE__, :adapter)
+  end
+
   def access_modes() do
     GenServer.call(__MODULE__, :access_modes)
   end
@@ -72,6 +76,10 @@ defmodule Refmon.Server do
     end
 
     {:reply, :ok, state}
+  end
+
+  def handle_call(:adapter, _from, %{adapter: adapter} = state) do
+    {:reply, adapter, state}
   end
 
   def handle_call(:access_modes, _from, %{access_modes: modes} = state) do

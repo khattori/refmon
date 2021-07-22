@@ -197,6 +197,16 @@ defmodule Refmon do
   end
 
   @doc """
+  Get adapter
+
+  ## Examples
+
+      iex> adapter()
+      Refmon.Extras.TestAdapter
+  """
+  defdelegate adapter(), to: Refmon.Server
+
+  @doc """
   Get access mode list.
 
   ## Examples
