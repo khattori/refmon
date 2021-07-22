@@ -5,7 +5,6 @@ defmodule Refmon do
   defmacro __using__(_opts) do
     quote do
       require Refmon
-      import Refmon, only: :macros
 
       Module.register_attribute(__MODULE__, :registered_access_modes,
         accumulate: true,
@@ -67,7 +66,7 @@ defmodule Refmon do
 
     quote do
       Refmon.subject()
-      |> validate(unquote(obj), unquote(acc))
+      |> Refmon.validate(unquote(obj), unquote(acc))
     end
   end
 
@@ -116,7 +115,7 @@ defmodule Refmon do
 
     quote do
       Refmon.subject()
-      |> validate!(unquote(obj), unquote(acc))
+      |> Refmon.validate!(unquote(obj), unquote(acc))
     end
   end
 
@@ -142,7 +141,7 @@ defmodule Refmon do
       subj = unquote(subj)
       obj = unquote(obj)
 
-      validate(subj, obj, unquote(acc))
+      Refmon.validate(subj, obj, unquote(acc))
       |> case do
         :allow ->
           :ok
@@ -181,6 +180,9 @@ defmodule Refmon do
       nil
   """
   def subject(subj) do
+    #
+    # [TODO] Subjectのセットはカーネルプロセスのみ許可する
+    #
     Process.put(@refmon_subject_key, subj)
   end
 
@@ -193,6 +195,9 @@ defmodule Refmon do
       nil
   """
   def clear_subject() do
+    #
+    # [TODO] Subjectのクリアはカーネルプロセスのみ許可する
+    #
     Process.delete(@refmon_subject_key)
   end
 
