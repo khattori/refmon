@@ -63,4 +63,11 @@ defmodule Refmon.CacheTest do
       get_or_store(<<1::3, 2, 3>>, :obj, :read, nil, fn -> :stored end)
     end
   end
+
+  test "do not cache when object id is nil" do
+    get_or_store("subj1", nil, :read, nil, fn -> :stored1 end)
+    assert_raise RuntimeError, fn ->
+      get_or_store("subj1", nil, :read, nil, fn -> raise RuntimeError end)
+    end
+  end
 end

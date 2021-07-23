@@ -66,7 +66,6 @@ permission は、アクセス主体 subj とターゲット obj, アクセスモ
 permission の呼び出し結果は、Refmon 側でキャッシュされる。キャッシュを
 クリアするのは、アプリケーションモジュールの責任である。
 
-
 subject が nil の場合、システム呼び出しとみなされ、permission は呼び出
 されない。
 
