@@ -16,7 +16,7 @@ defmodule Refmon.Application do
       # Starts a worker by calling: Refmon.Worker.start_link(arg)
       # {Refmon.Worker, arg}
       {Refmon.Server, adapter: adapter, otp_app: otp_app},
-      {ConCache, name: Refmon.Cache, ttl_check_interval: false}
+      {Cachex, name: Refmon.Cache}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

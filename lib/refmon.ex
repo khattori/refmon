@@ -58,19 +58,19 @@ defmodule Refmon do
 
   ## Examples
 
-      iex> validate("my pen", :use)
+      iex> validate("my pen", :use, nil)
       :allow
   """
-  defmacro validate(obj, acc) when is_atom(acc) do
+  defmacro validate(obj, acc, param) when is_atom(acc) do
     Module.put_attribute(__CALLER__.module, :registered_access_modes, acc)
 
     quote do
       Refmon.subject()
-      |> Refmon.validate(unquote(obj), unquote(acc))
+      |> Refmon.validate(unquote(obj), unquote(acc), unquote(param))
     end
   end
 
-  defmacro validate(_obj, _acc) do
+  defmacro validate(_obj, _acc, _param) do
     raise ArgumentError, message: "`acc` parameter should be an atom literal"
   end
 
@@ -79,21 +79,24 @@ defmodule Refmon do
 
   ## Examples
 
-      iex> validate("I", "my pen", :use)
+      iex> validate("I", "my pen", :use, nil)
       :allow
 
-      iex> validate("he", "my pen", :use)
+      iex> validate("he", "my pen", :use, nil)
+      :deny
+
+      iex> validate("I", "my pen", :use, "exclusive")
       :deny
   """
-  defmacro validate(subj, obj, acc) when is_atom(acc) do
+  defmacro validate(subj, obj, acc, param) when is_atom(acc) do
     Module.put_attribute(__CALLER__.module, :registered_access_modes, acc)
 
     quote do
-      Refmon.Server.validate(unquote(subj), unquote(obj), unquote(acc))
+      Refmon.Server.validate(unquote(subj), unquote(obj), unquote(acc), unquote(param))
     end
   end
 
-  defmacro validate(_subj, _obj, _acc) do
+  defmacro validate(_subj, _obj, _acc, _param) do
     raise ArgumentError, message: "`acc` parameter should be an atom literal"
   end
 
@@ -103,23 +106,23 @@ defmodule Refmon do
   ## Examples
 
       iex> subject("he")
-      iex> validate!("his pen", :use)
+      iex> validate!("his pen", :use, nil)
       :ok
 
       iex> subject("he")
-      iex> validate!("my pen", :use)
-      ** (Refmon.PermissionDenied) permission denied: he have no use permissions to my pen
+      iex> validate!("my pen", :use, nil)
+      ** (Refmon.PermissionDenied) permission denied: he have no use() permissions to my pen
   """
-  defmacro validate!(obj, acc) when is_atom(acc) do
+  defmacro validate!(obj, acc, param) when is_atom(acc) do
     Module.put_attribute(__CALLER__.module, :registered_access_modes, acc)
 
     quote do
-      Refmon.subject()
-      |> Refmon.validate!(unquote(obj), unquote(acc))
+      subj = Refmon.subject()
+      Refmon.validate!(subj, unquote(obj), unquote(acc), unquote(param))
     end
   end
 
-  defmacro validate!(_obj, _acc) do
+  defmacro validate!(_obj, _acc, _param) do
     raise ArgumentError, message: "`acc` parameter should be an atom literal"
   end
 
@@ -128,34 +131,26 @@ defmodule Refmon do
 
   ## Examples
 
-      iex> validate!("he", "his pen", :use)
+      iex> validate!("he", "his pen", :use, nil)
       :ok
 
-      iex> validate!("I", "his pen", :use)
-      ** (Refmon.PermissionDenied) permission denied: I have no use permissions to his pen
+      iex> validate!("I", "his pen", :use, nil)
+      ** (Refmon.PermissionDenied) permission denied: I have no use() permissions to his pen
   """
-  defmacro validate!(subj, obj, acc) when is_atom(acc) do
+  defmacro validate!(subj, obj, acc, param) when is_atom(acc) do
     Module.put_attribute(__CALLER__.module, :registered_access_modes, acc)
 
     quote do
-      subj = unquote(subj)
-      obj = unquote(obj)
-
-      Refmon.validate(subj, obj, unquote(acc))
-      |> case do
+      case Refmon.validate(unquote(subj), unquote(obj), unquote(acc), unquote(param)) do
         :allow ->
           :ok
-
         :deny ->
-          raise Refmon.PermissionDenied,
-            subject: to_string(subj),
-            object: to_string(obj),
-            access: unquote(acc)
+          raise Refmon.PermissionDenied, subject: to_string(unquote(subj)), object: to_string(unquote(obj)), access: unquote(acc), param: unquote(param)
       end
     end
   end
 
-  defmacro validate!(_subj, _obj, _acc) do
+  defmacro validate!(_subj, _obj, _acc, _param) do
     raise ArgumentError, message: "`acc` parameter should be an atom literal"
   end
 

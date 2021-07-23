@@ -9,45 +9,58 @@ defmodule Refmon.CacheTest do
   end
 
   test "clear cache" do
-    get_or_store("subj1", "obj1", fn -> :stored1 end)
-    assert :stored1 == get_or_store("subj1", "obj1", fn -> throw(:cache_error) end)
-    get_or_store("subj2", "obj2", fn -> :stored2 end)
-    assert :stored2 == get_or_store("subj2", "obj2", fn -> throw(:cache_error) end)
+    get_or_store("subj1", "obj1", :read, nil, fn -> :stored1 end)
+    assert :stored1 == get_or_store("subj1", "obj1", :read, nil, fn -> raise RuntimeError end)
+    get_or_store("subj2", "obj2", :read, nil, fn -> :stored2 end)
+    assert :stored2 == get_or_store("subj2", "obj2", :read, nil, fn -> raise RuntimeError end)
     clear("subj1", "obj1")
-    assert catch_throw(get_or_store("subj1", "obj1", fn -> throw(:called) end)) == :called
-    assert :stored2 == get_or_store("subj2", "obj2", fn -> throw(:cache_error) end)
+    assert_raise Cachex.ExecutionError, fn ->
+      get_or_store("subj1", "obj1", :read, nil, fn -> raise RuntimeError end)
+    end
+    assert :stored2 == get_or_store("subj2", "obj2", :read, nil, fn -> raise RuntimeError end)
   end
 
   test "clear cache subject" do
-    get_or_store("subj1", "obj1", fn -> :stored1 end)
-    assert :stored1 == get_or_store("subj1", "obj1", fn -> throw(:cache_error) end)
-    get_or_store("subj2", "obj2", fn -> :stored2 end)
-    assert :stored2 == get_or_store("subj2", "obj2", fn -> throw(:cache_error) end)
+    get_or_store("subj1", "obj1", :read, nil, fn -> :stored1 end)
+    assert :stored1 == get_or_store("subj1", "obj1", :read, nil, fn -> raise RuntimeError end)
+    get_or_store("subj2", "obj2", :read, nil, fn -> :stored2 end)
+    assert :stored2 == get_or_store("subj2", "obj2", :read, nil, fn -> raise RuntimeError end)
+    assert_raise Cachex.ExecutionError, fn ->
+      get_or_store("subj1", "obj1", :read, "param", fn -> raise RuntimeError end)
+    end
+    get_or_store("subj1", "obj1", :read, "param", fn -> :stored1 end)
+    assert :stored1 == get_or_store("subj1", "obj1", :read, "param", fn -> raise RuntimeError end)
     clear_subject("subj1")
-    assert catch_throw(get_or_store("subj1", "obj1", fn -> throw(:called) end)) == :called
-    assert :stored2 == get_or_store("subj2", "obj2", fn -> throw(:cache_error) end)
+    assert_raise Cachex.ExecutionError, fn ->
+      get_or_store("subj1", "obj1", :read, nil, fn -> raise RuntimeError end)
+    end
+    assert :stored2 == get_or_store("subj2", "obj2", :read, nil, fn -> raise RuntimeError end)
   end
 
   test "clear cache object" do
-    get_or_store(101, 201, fn -> :stored1 end)
-    assert :stored1 == get_or_store(101, 201, fn -> throw(:cache_error) end)
-    get_or_store(102, 202, fn -> :stored2 end)
-    assert :stored2 == get_or_store(102, 202, fn -> throw(:cache_error) end)
+    get_or_store(101, 201, :read, nil, fn -> :stored1 end)
+    assert :stored1 == get_or_store(101, 201, :read, nil, fn -> raise RuntimeError end)
+    get_or_store(102, 202, :read, nil, fn -> :stored2 end)
+    assert :stored2 == get_or_store(102, 202, :read, nil, fn -> raise RuntimeError end)
     clear_object(201)
-    assert catch_throw(get_or_store(101, 201, fn -> throw(:called) end)) == :called
-    assert :stored2 == get_or_store(102, 202, fn -> throw(:cache_error) end)
+    assert_raise Cachex.ExecutionError, fn ->
+      get_or_store(101, 201, :read, nil, fn -> raise RuntimeError end)
+    end
+    assert :stored2 == get_or_store(102, 202, :read, nil, fn -> raise RuntimeError end)
   end
 
   test "clear cache all" do
-    get_or_store(:subj, :obj, fn -> :stored end)
-    assert :stored == get_or_store(:subj, :obj, fn -> throw(:cache_error) end)
+    get_or_store(:subj, :obj, :read, nil, fn -> :stored end)
+    assert :stored == get_or_store(:subj, :obj, :read, nil, fn -> raise RuntimeError end)
     clear_all()
-    assert catch_throw(get_or_store(:subj, :obj, fn -> throw(:called) end)) == :called
+    assert_raise Cachex.ExecutionError, fn ->
+      get_or_store(:subj, :obj, :read, nil, fn -> raise RuntimeError end)
+    end
   end
 
   test "store error" do
     assert_raise Protocol.UndefinedError, fn ->
-      get_or_store(<<1::3, 2, 3>>, :obj, fn -> :stored end)
+      get_or_store(<<1::3, 2, 3>>, :obj, :read, nil, fn -> :stored end)
     end
   end
 end
