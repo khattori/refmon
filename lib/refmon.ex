@@ -64,9 +64,9 @@ defmodule Refmon do
   defmacro validate(obj, acc, param) when is_atom(acc) do
     Module.put_attribute(__CALLER__.module, :registered_access_modes, acc)
 
-    quote do
+    quote bind_quoted: [obj: obj, param: param], unquote: true do
       Refmon.subject()
-      |> Refmon.validate(unquote(obj), unquote(acc), unquote(param))
+      |> Refmon.validate(obj, unquote(acc), param)
     end
   end
 
@@ -91,8 +91,8 @@ defmodule Refmon do
   defmacro validate(subj, obj, acc, param) when is_atom(acc) do
     Module.put_attribute(__CALLER__.module, :registered_access_modes, acc)
 
-    quote do
-      Refmon.Server.validate(unquote(subj), unquote(obj), unquote(acc), unquote(param))
+    quote bind_quoted: [subj: subj, obj: obj, acc: acc, param: param] do
+      Refmon.Server.validate(subj, obj, acc, param)
     end
   end
 
@@ -116,9 +116,9 @@ defmodule Refmon do
   defmacro validate!(obj, acc, param) when is_atom(acc) do
     Module.put_attribute(__CALLER__.module, :registered_access_modes, acc)
 
-    quote do
+    quote bind_quoted: [obj: obj, param: param], unquote: true do
       subj = Refmon.subject()
-      Refmon.validate!(subj, unquote(obj), unquote(acc), unquote(param))
+      Refmon.validate!(subj, obj, unquote(acc), param)
     end
   end
 
@@ -140,12 +140,12 @@ defmodule Refmon do
   defmacro validate!(subj, obj, acc, param) when is_atom(acc) do
     Module.put_attribute(__CALLER__.module, :registered_access_modes, acc)
 
-    quote do
-      case Refmon.validate(unquote(subj), unquote(obj), unquote(acc), unquote(param)) do
+    quote bind_quoted: [subj: subj, obj: obj, param: param], unquote: true do
+      case Refmon.validate(subj, obj, unquote(acc), param) do
         :allow ->
           :ok
         :deny ->
-          raise Refmon.PermissionDenied, subject: to_string(unquote(subj)), object: to_string(unquote(obj)), access: unquote(acc), param: unquote(param)
+          raise Refmon.PermissionDenied, subject: to_string(subj), object: to_string(obj), access: unquote(acc), param: param
       end
     end
   end
