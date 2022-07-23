@@ -69,10 +69,14 @@ permission の呼び出し結果は、Refmon 側でキャッシュされる。�
 subject が nil の場合、システム呼び出しとみなされ、permission は呼び出
 されない。
 
-Refmon を組み込むアプリケーションの config.exs に アダプタモジュールを
-設定する。
+Refmon を組み込むアプリケーションの config.exs に otp_app とアダプタモ
+ジュールを設定する。
 
 ```elixir
 config :refmon,
+  otp_app: :myapp,
   adapter: MyApp.MyAdapter
 ```
+
+otp_app を設定することで、そのアプリケーションで定義しているアクセスモー
+ドの一覧を Refmon.subject() から取得することができるようになる
