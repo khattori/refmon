@@ -212,7 +212,7 @@ defmodule Refmon do
   ## Examples
 
       iex> access_modes()
-      #MapSet<[:read, :use, :write]>
+      MapSet.new([:read, :use, :write])
   """
   defdelegate access_modes(), to: Refmon.Server
 end
