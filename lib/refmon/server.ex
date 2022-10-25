@@ -8,8 +8,8 @@ defmodule Refmon.Server do
 
   def init(opts) do
     otp_app = Keyword.get(opts, :otp_app)
-    apps = [otp_app | otp_app |> Application.spec(:applications)]
-
+    apps = Application.spec(otp_app, :applications) || []
+    apps = [otp_app | apps]
     access_modes =
       Enum.reduce(apps, MapSet.new(), fn app, acc ->
         register_access_modes(app) |> MapSet.union(acc)
@@ -19,7 +19,8 @@ defmodule Refmon.Server do
   end
 
   defp register_access_modes(app) when is_atom(app) do
-    for mod <- Application.spec(app, :modules) do
+    app_mods = Application.spec(app, :modules) || []
+    for mod <- app_mods do
       try do
         for values <- Keyword.get_values(mod.__info__(:attributes), :registered_access_modes) do
           values
