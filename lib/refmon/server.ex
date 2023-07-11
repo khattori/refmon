@@ -8,11 +8,16 @@ defmodule Refmon.Server do
 
   def init(opts) do
     otp_app = Keyword.get(opts, :otp_app)
+    this_app = Application.get_application(__MODULE__)
     apps = Application.spec(otp_app, :applications) || []
     apps = [otp_app | apps]
     access_modes =
       Enum.reduce(apps, MapSet.new(), fn app, acc ->
-        register_access_modes(app) |> MapSet.union(acc)
+        if app == this_app or this_app in Application.spec(app, :applications) do
+          register_access_modes(app) |> MapSet.union(acc)
+        else
+          acc
+        end
       end)
 
     {:ok, %{adapter: Keyword.get(opts, :adapter), access_modes: access_modes}}
