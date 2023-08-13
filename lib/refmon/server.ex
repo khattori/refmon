@@ -1,6 +1,8 @@
 defmodule Refmon.Server do
   use GenServer
   alias Refmon.Cache
+  require Logger
+
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
@@ -13,10 +15,15 @@ defmodule Refmon.Server do
     apps = [otp_app | apps]
     access_modes =
       Enum.reduce(apps, MapSet.new(), fn app, acc ->
-        if app == this_app or this_app in Application.spec(app, :applications) do
-          register_access_modes(app) |> MapSet.union(acc)
-        else
-          acc
+        applications = Application.spec(app, :applications)
+        cond do
+          is_nil applications ->
+            Logger.warning("Could not retrieve application spec of `#{app}`")
+            acc
+          app == this_app or this_app in applications ->
+            register_access_modes(app) |> MapSet.union(acc)
+          true ->
+            acc
         end
       end)
 
