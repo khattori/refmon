@@ -14,7 +14,7 @@ defmodule Refmon.CacheTest do
     get_or_store("subj2", "obj2", :read, nil, fn -> :stored2 end)
     assert :stored2 == get_or_store("subj2", "obj2", :read, nil, fn -> raise RuntimeError end)
     clear("subj1", "obj1")
-    assert_raise Cachex.ExecutionError, fn ->
+    assert_raise Cachex.Error, fn ->
       get_or_store("subj1", "obj1", :read, nil, fn -> raise RuntimeError end)
     end
     assert :stored2 == get_or_store("subj2", "obj2", :read, nil, fn -> raise RuntimeError end)
@@ -25,13 +25,13 @@ defmodule Refmon.CacheTest do
     assert :stored1 == get_or_store("subj1", "obj1", :read, nil, fn -> raise RuntimeError end)
     get_or_store("subj2", "obj2", :read, nil, fn -> :stored2 end)
     assert :stored2 == get_or_store("subj2", "obj2", :read, nil, fn -> raise RuntimeError end)
-    assert_raise Cachex.ExecutionError, fn ->
+    assert_raise Cachex.Error, fn ->
       get_or_store("subj1", "obj1", :read, "param", fn -> raise RuntimeError end)
     end
     get_or_store("subj1", "obj1", :read, "param", fn -> :stored1 end)
     assert :stored1 == get_or_store("subj1", "obj1", :read, "param", fn -> raise RuntimeError end)
     clear_subject("subj1")
-    assert_raise Cachex.ExecutionError, fn ->
+    assert_raise Cachex.Error, fn ->
       get_or_store("subj1", "obj1", :read, nil, fn -> raise RuntimeError end)
     end
     assert :stored2 == get_or_store("subj2", "obj2", :read, nil, fn -> raise RuntimeError end)
@@ -43,7 +43,7 @@ defmodule Refmon.CacheTest do
     get_or_store(102, 202, :read, nil, fn -> :stored2 end)
     assert :stored2 == get_or_store(102, 202, :read, nil, fn -> raise RuntimeError end)
     clear_object(201)
-    assert_raise Cachex.ExecutionError, fn ->
+    assert_raise Cachex.Error, fn ->
       get_or_store(101, 201, :read, nil, fn -> raise RuntimeError end)
     end
     assert :stored2 == get_or_store(102, 202, :read, nil, fn -> raise RuntimeError end)
@@ -53,7 +53,7 @@ defmodule Refmon.CacheTest do
     get_or_store(:subj, :obj, :read, nil, fn -> :stored end)
     assert :stored == get_or_store(:subj, :obj, :read, nil, fn -> raise RuntimeError end)
     clear_all()
-    assert_raise Cachex.ExecutionError, fn ->
+    assert_raise Cachex.Error, fn ->
       get_or_store(:subj, :obj, :read, nil, fn -> raise RuntimeError end)
     end
   end

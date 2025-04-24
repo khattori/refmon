@@ -36,7 +36,7 @@ defmodule Refmon.Cache do
 
   def clear_subject(subj) do
     subj_id = Identifiable.to_identifier(subj)
-    query = Cachex.Query.create({:==, {:element, 1, :key}, subj_id}, :key)
+    query = Cachex.Query.build(where: {:==, {:element, 1, :key}, subj_id}, output: :key)
     {:ok, result} = Cachex.stream(__MODULE__, query)
     for key <- result do
       {:ok, true} = Cachex.del(__MODULE__, key)
@@ -46,7 +46,7 @@ defmodule Refmon.Cache do
 
   def clear_object(obj) do
     obj_id = Identifiable.to_identifier(obj)
-    query = Cachex.Query.create({:==, {:element, 2, :key}, obj_id}, :key)
+    query = Cachex.Query.build(where: {:==, {:element, 2, :key}, obj_id}, output: :key)
     {:ok, result} = Cachex.stream(__MODULE__, query)
     for key <- result do
       {:ok, true} = Cachex.del(__MODULE__, key)
