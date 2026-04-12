@@ -14,14 +14,14 @@ defmodule Refmon do
   end
 
   @refmon_subject_key :refmon_subject_key
-
+  @version Mix.Project.config[:version]
   @doc """
   Get version.
 
   ## Examples
 
       iex> Refmon.version()
-      "0.1.0"
+      "#{@version}"
 
   """
   def version do
